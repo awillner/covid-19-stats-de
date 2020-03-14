@@ -2,11 +2,6 @@
 
 Graphs based on the data of german covid-19 cases provided by https://covid-19.openmedical.de.
 
-## Data
-Due to CORS restrictions the data can not be loaded directly from https://covid-19.openmedical.de/index.json. 
-
-You need to manually download the current version and put it in /dist/data/.
-
 ## Multi-Graphs
 Show the daily number of infections and deaths per state.
 
