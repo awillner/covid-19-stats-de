@@ -15,15 +15,11 @@ async function loadData() {
     /* Format Data */
     var parseDate = d3.timeParse("%d.%m.%Y");
     var parseDay = d3.timeFormat('%d.%m.');
-    let maxInfected = 0;
     data.forEach(function (d) {
-        let maxInfected = 0;
         d.data.forEach(function (d) {
             d.date = parseDate(d.date);
             d.day = parseDay(d.date);
-            maxInfected = +d.infected;
         });
-        d.maxInfected = maxInfected;
     });
 }
 
@@ -37,7 +33,6 @@ export async function generateMultiple() {
     let all = [];
 
     let date;
-
     data.forEach(function (d) {
         d.data.forEach(function (e) {
             date = parseDate(e.date);
@@ -120,7 +115,7 @@ export async function generateMultiple() {
                     return x(d.date);
                 })
                 .y(function(d) {
-                    return y(+d.dead);
+                    return y(d.dead);
                 })
                 (d.values)
         })
