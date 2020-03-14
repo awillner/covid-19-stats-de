@@ -5,7 +5,7 @@ let data;
 
 async function loadData() {
     const data = await axios
-        .get('./data/index.json')
+        .get('https://covid-19.openmedical.de/index.json')
         .then(res => {
             return res.data;
         })
