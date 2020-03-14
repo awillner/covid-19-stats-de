@@ -36,14 +36,20 @@ export async function generateMultiple() {
     data.forEach(function (d) {
         d.data.forEach(function (e) {
             date = parseDate(e.date);
-            all.push({'state': d.state, 'date': date, 'infected': e.infected, 'dead': e.dead, 'new': e.infected_diff})
+            all.push({
+                'state': d.state,
+                'date': date,
+                'infected': e.infected,
+                'dead': e.dead,
+                'new': e.infected_diff
+            })
         });
     });
 
     // set the dimensions and margins of the graph
-    var margin = {top: 30, right: 0, bottom: 30, left: 50},
-        width = 250 - margin.left - margin.right,
-        height = 250 - margin.top - margin.bottom;
+    var margin = {top: 30, right: 0, bottom: 50, left: 60},
+        width = 260 - margin.left - margin.right,
+        height = 260 - margin.top - margin.bottom;
 
     // group the data: I want to draw one line per group
     var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
@@ -64,15 +70,17 @@ export async function generateMultiple() {
 
     // Add X axis
     var x = d3.scaleTime()
-        .domain(d3.extent(all, d => d.date))
-        .range([0, width]);
+        .domain(d3.extent(all, d => d.date)).nice()
+        .range([0, width-20]);
 
-    svg
-        .append("g")
+    svg.append("g")
         .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x).ticks(4));
-
-    let maxInfected = d3.max(all, d => +d.infected);
+        .call(d3.axisBottom(x).tickFormat(d3.timeFormat('%d.%m.')))
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");
 
     //Add Y axis
 //    var y = d3.scaleSymlog()
@@ -80,7 +88,7 @@ export async function generateMultiple() {
         .domain([0, d3.max(all, d => +d.infected)])
         .range([ height, 0 ]);
     svg.append("g")
-        .call(d3.axisLeft(y).ticks(all.length/30));
+        .call(d3.axisLeft(y).ticks(all.length/20));
 
     // color palette
     var color = d3.scaleOrdinal(d3.schemeTableau10);
