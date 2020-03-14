@@ -1,0 +1,29 @@
+{
+  "name": "covid-19-stats-de",
+  "description": "COVID-19 stats for Germany",
+  "author": "A. Willner",
+  "version": "0.0.1",
+  "license": "GPL-3.0-or-later",
+  "homepage": "https://github.com/awillner/covid-19-stats-de#readme",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/awillner/covid-19-stats-de.git"
+  },
+  "bugs": {
+    "url": "https://github.com/awillner/covid-19-stats-de/issues"
+  },
+  "main": "app.js",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "d3": "^5.15.0"
+  },
+  "scripts": {
+    "build": "webpack --mode production",
+    "start:dev": "NODE_ENV=development webpack-dev-server"
+  },
+  "devDependencies": {
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  }
+}
