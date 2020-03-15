@@ -10,11 +10,29 @@ async function loadData() {
             return res.data;
         })
         .catch(err => console.log(err));
+
+    let population = await axios
+        .get('./population.json')
+        .then(res => {
+            return res.data;
+        })
+        .catch(err => console.log(err));
+
+    let merged = [];
+
+    for(let i=0; i<data.length; i++) {
+        merged.push({
+            ...data[i],
+            ...(population.find((itmInner) => itmInner.state === data[i].state))}
+        );
+    }
+    data = merged;
     return data;
 }
 
 export async function generateMultiple() {
     if (!data) {
+        const
         data = await loadData();
     }
 
@@ -30,7 +48,9 @@ export async function generateMultiple() {
                 'date': date,
                 'infected': e.infected,
                 'dead': e.dead,
-                'new': e.infected_diff
+                'new': e.infected_diff,
+                'population': d.population,
+                'area': d.area
             })
         });
     });
@@ -78,7 +98,7 @@ export async function generateMultiple() {
         .attr("dy", ".15em")
         .attr("transform", "rotate(-65)");
 
-    //Add Y axis for infections (total)
+    //infections (total)
 //    let y = d3.scaleSymlog()
     let y = d3.scaleLinear()
         .domain([0, d3.max(all, d => +d.infected)])
@@ -100,7 +120,7 @@ export async function generateMultiple() {
         })
         .text("Infections");
 
-    // Add the Y1 axis for deaths (total)
+    // deaths (total)
     let y1 = d3.scaleLinear()
         .domain([0, d3.max(all, d => d.dead)*10])
         .range([height, 0]);
@@ -116,6 +136,42 @@ export async function generateMultiple() {
         .style("text-anchor", "end")
         .attr("fill", "#000000")
         .text("Deaths");
+
+    // infections per inhabitants
+    let y2 = d3.scaleSymlog()
+        .domain([0, (d3.max(all, d => d.infected / d.population * 1000 ))])
+        .range([height, 0]);
+    svg.append("g")
+        .attr("class", "tick")
+        .attr("transform", "translate( " + (width-20) + ", 0 )")
+        .attr("color", '#aaa')
+        .call(d3.axisRight(y2));
+    svg
+        .append("text")
+        .attr("class", "axis-title")
+        .attr("transform", "rotate(-90)")
+        .attr("x", (-height+margin.bottom+60)/2)
+        .attr("y", width+25)
+        .style("text-anchor", "end")
+        .attr("fill",  '#aaa')
+        .text("Infections / 1000 Inhabitants");
+
+    // // infections per population density
+    // let y3 = d3.scaleLinear()
+    //     .domain([0, (d3.max(all, d => d.infected * (d.population/d.area)))])
+    //     .range([height, 0]);
+    // svg.append("g")
+    //     .attr("class", "tick")
+    //     .attr("transform", "translate( " + (width - 15) + ", 0 )")
+    //     .call(d3.axisRight(y3))
+    //     .append("text")
+    //     .attr("class", "axis-title")
+    //     .attr("transform", "rotate(-90)")
+    //     .attr("x", (-height+margin.bottom)/2)
+    //     .attr("y", width-35)
+    //     .style("text-anchor", "end")
+    //     .attr("fill", "#000000")
+    //     .text("Infections / Population/Area");
 
     // Draw the line for infections
     let xval;
@@ -162,6 +218,48 @@ export async function generateMultiple() {
                 })
                 (d.values)
         });
+
+    svg
+        .append("path")
+        .attr("class", "multipath")
+        .attr("fill", "none")
+        .attr("stroke", '#aaa')
+        .attr("stroke-width", 1.9)
+        .attr("stroke-dasharray", 4)
+        .attr("d", function (d) {
+            return d3.line()
+                .x(function (d) {
+                    xval = x(d.date);
+                    return xval;
+                })
+                .y(function (d) {
+                    yval = y2(d.infected / d.population * 1000);
+                    return yval;
+                })
+                (d.values)
+        });
+
+    // svg
+    //     .append("path")
+    //     .attr("class", "multipath")
+    //     .attr("fill", "none")
+    //     .attr("stroke", function (d) {
+    //         return color(d.key)
+    //     })
+    //     .attr("stroke-width", 1.9)
+    //     .attr("stroke-dasharray", 2)
+    //     .attr("d", function (d) {
+    //         return d3.line()
+    //             .x(function (d) {
+    //                 xval = x(d.date);
+    //                 return xval;
+    //             })
+    //             .y(function (d) {
+    //                 yval = y3(d.infected / d.population/d.area);
+    //                 return yval;
+    //             })
+    //             (d.values)
+    //     });
 
     // Add titles
     svg

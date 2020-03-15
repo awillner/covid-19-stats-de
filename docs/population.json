@@ -1,0 +1,82 @@
+[
+  {
+    "state": "Baden-Württemberg",
+    "population": 11101356,
+    "area": 35748.22
+  },
+  {
+    "state": "Bayern",
+    "population": 13117089,
+    "area": 70541.57
+  },
+  {
+    "state": "Berlin",
+    "population": 3656517,
+    "area": 891.12
+  },
+  {
+    "state": "Brandenburg",
+    "population": 2520198,
+    "area": 29654.48
+  },
+  {
+    "state": "Bremen",
+    "population": 684218,
+    "area": 419.36
+  },
+  {
+    "state": "Hamburg",
+    "population": 1846152,
+    "area": 755.09
+  },
+  {
+    "state": "Hessen",
+    "population": 6285622,
+    "area": 21115.68
+  },
+  {
+    "state": "Mecklenburg-Vorpommern",
+    "population": 1609246,
+    "area": 23294.62
+  },
+  {
+    "state": "Niedersachsen",
+    "population": 7997462,
+    "area": 47709.50
+  },
+  {
+    "state": "Nordrhein-Westfalen",
+    "population": 17941391,
+    "area": 34112.31
+  },
+  {
+    "state": "Rheinland-Pfalz",
+    "population": 4094016,
+    "area": 19858.00
+  },
+  {
+    "state": "Saarland",
+    "population": 987797,
+    "area": 2571.11
+  },
+  {
+    "state": "Sachsen",
+    "population": 4072691,
+    "area": 18449.96
+  },
+  {
+    "state": "Sachsen-Anhalt",
+    "population": 2197438,
+    "area": 20454.31
+  },
+  {
+    "state": "Schleswig-Holstein",
+    "population": 2903691,
+    "area": 15804.30
+  },
+  {
+    "state": "Th\u00fcringen",
+    "population": 2134393,
+    "area": 16202.37
+  }
+]
