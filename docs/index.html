@@ -24,16 +24,16 @@
             font-size: 12px;
         }
 
-        .flex-grid {
+        #multiple {
             display: flex;
+            flex-flow: row wrap;
+            justify-content: center;
+            align-items: flex-end;
         }
-        .col-legend {
-            flex: 1;
-            width: 10%;
-        }
-        .col-data {
-            flex: 1;
-            width: 90%;
+
+        .chart {
+            min-width: 350px;
+            min-height: 300px;
         }
 
         html { font-size: 62.5%; }
@@ -80,17 +80,16 @@
             stroke: none;
         }
 
-        text {
-            font-size: 1.2rem;
-            fill: #AAAAAA;
-            font-weight: 400;
-        }
-
         .legendTitle {
             font-size: 1.6rem;
             fill: #4F4F4F;
             font-weight: 300;
         }
+
+        .background {
+            fill: none;
+        }
+
     </style>
 </head>
 <body>
