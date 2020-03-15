@@ -18,6 +18,9 @@ module.exports = {
         compress: true,
         port: 9000
     },
+    output: {
+        path: __dirname + '/docs'
+    },
     resolve: {
         extensions: ['.ts', '.js'],
     }
