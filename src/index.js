@@ -47,14 +47,19 @@ export async function generateMultiple() {
     });
 
     // set the dimensions and margins of the graph
-    var margin = {top: 30, right: 0, bottom: 50, left: 60},
-        width = 260 - margin.left - margin.right,
+    var margin = {top: 30, right: 40, bottom: 50, left: 40},
+        width = 260 - margin.right,
         height = 260 - margin.top - margin.bottom;
 
     // group the data: I want to draw one line per group
     var sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
-        .key(function(d) { return d.state;})
+        .key(function (d) {
+            return d.state;
+        })
         .entries(all);
+
+    // color palette
+    var color = d3.scaleOrdinal(d3.schemeTableau10);
 
     // Add an svg element for each group. The will be one beside each other and will go on the next row when no more room available
     var svg = d3.select("#multiple")
@@ -62,7 +67,7 @@ export async function generateMultiple() {
         .data(sumstat)
         .enter()
         .append("svg")
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", width + margin.right + margin.left)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform",
@@ -71,8 +76,7 @@ export async function generateMultiple() {
     // Add X axis
     var x = d3.scaleTime()
         .domain(d3.extent(all, d => d.date)).nice()
-        .range([0, width-20]);
-
+        .range([0, width - 20]);
     svg.append("g")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x).tickFormat(d3.timeFormat('%d.%m.')))
@@ -82,30 +86,36 @@ export async function generateMultiple() {
         .attr("dy", ".15em")
         .attr("transform", "rotate(-65)");
 
-    //Add Y axis
+    //Add Y axis for infections (total)
 //    var y = d3.scaleSymlog()
     var y = d3.scaleLinear()
         .domain([0, d3.max(all, d => +d.infected)])
-        .range([ height, 0 ]);
+        .range([height, 0]);
     svg.append("g")
-        .call(d3.axisLeft(y).ticks(all.length/20));
+        .call(d3.axisLeft(y).ticks(10));
 
-    // color palette
-    var color = d3.scaleOrdinal(d3.schemeTableau10);
+    // Add the Y1 axis for deaths (total)
+    var y1 = d3.scaleLinear()
+        .domain([0, d3.max(all, d => d.dead)*10])
+        .range([height, 0]);
+    svg.append("g")
+        .attr("transform", "translate( " + (width - margin.left/2) + ", 0 )")
+        .call(d3.axisRight(y1))
 
     // Draw the line for infections
     svg
         .append("path")
         .attr("fill", "none")
-        .attr("stroke", function(d){
-            return color(d.key) })
+        .attr("stroke", function (d) {
+            return color(d.key)
+        })
         .attr("stroke-width", 1.9)
-        .attr("d", function(d){
+        .attr("d", function (d) {
             return d3.line()
-                .x(function(d) {
+                .x(function (d) {
                     return x(d.date);
                 })
-                .y(function(d) {
+                .y(function (d) {
                     return y(d.infected);
                 })
                 (d.values)
@@ -117,13 +127,13 @@ export async function generateMultiple() {
         .attr("fill", "none")
         .attr("stroke", '#000000')
         .attr("stroke-width", 1.9)
-        .attr("d", function(d){
+        .attr("d", function (d) {
             return d3.line()
-                .x(function(d) {
+                .x(function (d) {
                     return x(d.date);
                 })
-                .y(function(d) {
-                    return y(d.dead);
+                .y(function (d) {
+                    return y1(d.dead);
                 })
                 (d.values)
         })
@@ -134,8 +144,12 @@ export async function generateMultiple() {
         .attr("text-anchor", "start")
         .attr("y", -5)
         .attr("x", 0)
-        .text(function(d){ return(d.key)})
-        .style("fill", function(d){ return color(d.key) })
+        .text(function (d) {
+            return (d.key)
+        })
+        .style("fill", function (d) {
+            return color(d.key)
+        })
 }
 
 export async function generateHeatMap() {
@@ -159,20 +173,21 @@ export async function generateHeatMap() {
 
     const states = [...new Set(newlyInfected.map(item => item.state))].reverse();
     const days = [...new Set(newlyInfected.map(item => item.day))];
+    const deaths = [...new Set(newlyInfected.map(item => item.death))];
 
     // set the dimensions and margins of the graph
-    var margin = {top: 80, right: 25, bottom: 30, left: 100},
+    var margin = {top: 0, right: 25, bottom: 30, left: 100},
         width = 700 - margin.left - margin.right,
         height = 700 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     var svg = d3.select("#heatmap")
         .append("svg")
-        .attr("width", width + margin.left*2 + margin.right*2)
+        .attr("width", width + margin.left * 2 + margin.right * 2)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform",
-            "translate(" + margin.left*2 + "," + margin.top + ")");
+            "translate(" + margin.left * 2 + "," + margin.top + ")");
 
 
     // Build X scales and axis:
@@ -257,15 +272,6 @@ export async function generateHeatMap() {
         .text(function (d) {
             return d.new;
         })
-
-    svg.append("text")
-        .attr("x", 0)
-        .attr("y", -20)
-        .attr("text-anchor", "left")
-        .style("font-size", "14px")
-        .style("fill", "grey")
-        .style("max-width", 400)
-        .text("Anzahl der Neuinfektionen pro Land und Tag.");
 }
 
 generateMultiple();
