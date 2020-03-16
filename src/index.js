@@ -2,6 +2,7 @@ const axios = require('axios');
 const d3 = require('d3');
 
 let data;
+let populationFactor = 100000;
 
 async function loadData() {
     data = await axios
@@ -20,10 +21,11 @@ async function loadData() {
 
     let merged = [];
 
-    for(let i=0; i<data.length; i++) {
+    for (let i = 0; i < data.length; i++) {
         merged.push({
-            ...data[i],
-            ...(population.find((itmInner) => itmInner.state === data[i].state))}
+                ...data[i],
+                ...(population.find((itmInner) => itmInner.state === data[i].state))
+            }
         );
     }
     data = merged;
@@ -33,7 +35,7 @@ async function loadData() {
 export async function generateMultiple() {
     if (!data) {
         const
-        data = await loadData();
+            data = await loadData();
     }
 
     /* Format Data */
@@ -45,12 +47,14 @@ export async function generateMultiple() {
             date = parseDate(e.date);
             all.push({
                 'state': d.state,
+                'population': d.population,
+                'area': d.area,
                 'date': date,
                 'infected': e.infected,
-                'dead': e.dead,
                 'new': e.infected_diff,
-                'population': d.population,
-                'area': d.area
+                'infected_population': (e.infected / d.population * populationFactor),
+                'dead': e.dead,
+                'dead_population': (e.dead / d.population * populationFactor),
             })
         });
     });
@@ -62,7 +66,9 @@ export async function generateMultiple() {
 
     // group the data: I want to draw one line per group
     let sumstat = d3.nest() // nest function allows to group the calculation per level of a factor
-        .key(function (d) { return d.state; })
+        .key(function (d) {
+            return d.state;
+        })
         .entries(all);
 
     // color palette
@@ -81,9 +87,9 @@ export async function generateMultiple() {
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform",
-            "translate(" + margin.left + "," + (margin.top + 10) + ")")
-    ;
+            "translate(" + margin.left + "," + (margin.top + 10) + ")");
 
+    //region x
     // Add X axis
     let x = d3.scaleTime()
         .domain(d3.extent(all, d => d.date)).nice()
@@ -97,10 +103,12 @@ export async function generateMultiple() {
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
         .attr("transform", "rotate(-65)");
+    //endregion x
 
+    //region infections
     //infections (total)
 //    let y = d3.scaleSymlog()
-    let y = d3.scaleLinear()
+    let infections = d3.scaleLinear()
         .domain([0, d3.max(all, d => +d.infected)])
         .range([height, 0]);
     svg.append("g")
@@ -108,76 +116,18 @@ export async function generateMultiple() {
         .attr("color", function (d) {
             return color(d.key);
         })
-        .call(d3.axisLeft(y).ticks(10))
+        .call(d3.axisLeft(infections).ticks(10))
         .append("text")
         .attr("class", "axis-title")
         .attr("transform", "rotate(-90)")
-        .attr("x", (-height+margin.bottom)/2)
+        .attr("x", (-height + margin.bottom) / 2)
         .attr("y", -35)
         .style("text-anchor", "end")
         .attr("fill", function (d) {
             return color(d.key);
         })
         .text("Infections");
-
-    // deaths (total)
-    let y1 = d3.scaleLinear()
-        .domain([0, d3.max(all, d => d.dead)*10])
-        .range([height, 0]);
-    svg.append("g")
-        .attr("class", "tick")
-        //        .attr("transform", "translate( " + (width - margin.left/2) + ", 0 )")
-        .call(d3.axisRight(y1))
-        .append("text")
-        .attr("class", "axis-title")
-        .attr("transform", "rotate(-90)")
-        .attr("x", (-height+margin.bottom)/2)
-        .attr("y", 35)
-        .style("text-anchor", "end")
-        .attr("fill", "#000000")
-        .text("Deaths");
-
-    // infections per inhabitants
-    let y2 = d3.scaleSymlog()
-        .domain([0, (d3.max(all, d => d.infected / d.population * 1000 ))])
-        .range([height, 0]);
-    svg.append("g")
-        .attr("class", "tick")
-        .attr("transform", "translate( " + (width-20) + ", 0 )")
-        .attr("color", '#aaa')
-        .call(d3.axisRight(y2));
-    svg
-        .append("text")
-        .attr("class", "axis-title")
-        .attr("transform", "rotate(-90)")
-        .attr("x", (-height+margin.bottom+60)/2)
-        .attr("y", width+25)
-        .style("text-anchor", "end")
-        .attr("fill",  '#aaa')
-        .text("Infections / 1000 Inhabitants");
-
-    // // infections per population density
-    // let y3 = d3.scaleLinear()
-    //     .domain([0, (d3.max(all, d => d.infected * (d.population/d.area)))])
-    //     .range([height, 0]);
-    // svg.append("g")
-    //     .attr("class", "tick")
-    //     .attr("transform", "translate( " + (width - 15) + ", 0 )")
-    //     .call(d3.axisRight(y3))
-    //     .append("text")
-    //     .attr("class", "axis-title")
-    //     .attr("transform", "rotate(-90)")
-    //     .attr("x", (-height+margin.bottom)/2)
-    //     .attr("y", width-35)
-    //     .style("text-anchor", "end")
-    //     .attr("fill", "#000000")
-    //     .text("Infections / Population/Area");
-
     // Draw the line for infections
-    let xval;
-    let yval;
-
-    let maxInfected = d3.max(all, d => d.infected);
     svg
         .append("path")
         .attr("class", "multipath")
@@ -189,84 +139,96 @@ export async function generateMultiple() {
         .attr("d", function (d) {
             return d3.line()
                 .x(function (d) {
-                    xval = x(d.date);
-                    return xval;
+                    return x(d.date);
                 })
                 .y(function (d) {
-                    yval = y(d.infected);
-                    return yval;
+                    return infections(d.infected);
                 })
                 (d.values)
         });
+    //endregion infections
 
-    let maxDead = d3.max(all, d => d.dead);
-    // Draw the line for deaths
+    //region infections per inhabitants
+    // infections per inhabitants
+    let infectedpopulation = d3.scaleLinear()
+        .domain([0, (d3.max(all, d => d.infected / d.population * populationFactor))])
+        .range([height, 0]);
+    svg.append("g")
+        .attr("class", "tick")
+//        .attr("transform", "translate( " + (width-20) + ", 0 )")
+        .attr("color", '#666')
+        .call(d3.axisRight(infectedpopulation));
     svg
-        .append("path")
-        .attr("fill", "none")
-        .attr("stroke", '#000000')
-        .attr("stroke-width", 1.9)
-        .attr("d", function (d) {
-            return d3.line()
-                .x(function (d) {
-                    xval = x(d.date);
-                    return xval;
-                })
-                .y(function (d) {
-                    yval = y1(d.dead);
-                    return yval;
-                })
-                (d.values)
-        });
-
+        .append("text")
+        .attr("class", "axis-title")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -margin.bottom/2)
+        .attr("y", 35)
+        .style("text-anchor", "end")
+        .attr("fill", '#666')
+        .text("Infections / " + populationFactor + " Inhabitants");
+    // Draw the line for infections / $populationFactor inhabitants
     svg
         .append("path")
         .attr("class", "multipath")
         .attr("fill", "none")
-        .attr("stroke", '#aaa')
+        .attr("stroke", '#666')
         .attr("stroke-width", 1.9)
         .attr("stroke-dasharray", 4)
         .attr("d", function (d) {
             return d3.line()
                 .x(function (d) {
-                    xval = x(d.date);
-                    return xval;
+                    return x(d.date);
                 })
                 .y(function (d) {
-                    yval = y2(d.infected / d.population * 1000);
-                    return yval;
+                    return infectedpopulation(d.infected / d.population * populationFactor);
                 })
                 (d.values)
         });
+    //endregion infections per inhabitants
 
-    // svg
-    //     .append("path")
-    //     .attr("class", "multipath")
-    //     .attr("fill", "none")
-    //     .attr("stroke", function (d) {
-    //         return color(d.key)
-    //     })
-    //     .attr("stroke-width", 1.9)
-    //     .attr("stroke-dasharray", 2)
-    //     .attr("d", function (d) {
-    //         return d3.line()
-    //             .x(function (d) {
-    //                 xval = x(d.date);
-    //                 return xval;
-    //             })
-    //             .y(function (d) {
-    //                 yval = y3(d.infected / d.population/d.area);
-    //                 return yval;
-    //             })
-    //             (d.values)
-    //     });
+    //region deaths
+    // deaths (total)
+    let deaths = d3.scaleLinear()
+        .domain([0, d3.max(all, d => d.infected/ 100) ])
+        .range([height, 0]);
+    svg.append("g")
+        .attr("class", "tick")
+        .attr("color", '#aaa')
+        .attr("transform", "translate( " + (width -10 ) + ", 0 )")
+        .call(d3.axisRight(deaths))
+        .append("text")
+        .attr("class", "axis-title")
+        .attr("transform", "rotate(-90)")
+        .attr("x", (-height + margin.bottom) / 2)
+        .attr("y", 35)
+        .style("text-anchor", "end")
+        .attr("fill", "#aaa")
+        .text("Deaths");
+    // Draw the line for deaths
+    svg
+        .append("path")
+        .attr("fill", "none")
+        .attr("stroke", '#aaa')
+        .attr("stroke-width", 1.9)
+        .attr("d", function (d) {
+            return d3.line()
+                .x(function (d) {
+                    return x(d.date);
+                })
+                .y(function (d) {
+                    return deaths(d.dead);
+                })
+                (d.values)
+        });
+    //endregion deaths
 
     // Add titles
     svg
         .append("text")
         .attr("text-anchor", "start")
-        .attr("y", -margin.top/2)
-        .attr("x", (width-margin.left) /2)
+        .attr("y", -margin.top / 2)
+        .attr("x", (width - margin.left) / 2)
         .text(function (d) {
             return (d.key)
         })
