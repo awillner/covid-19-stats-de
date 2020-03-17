@@ -60,7 +60,7 @@ export async function generateMultiple() {
     });
 
     // set the dimensions and margins of the graph
-    let margin = {top: 0, right: 25, bottom: 50, left: 100},
+    let margin = {top: 20, right: 25, bottom: 50, left: 100},
         width = 400 - margin.left - margin.right,
         height = 250 - margin.top - margin.bottom;
 
@@ -81,8 +81,10 @@ export async function generateMultiple() {
         .data(sumstat)
         .enter()
         .append('div')
-        .attr('class', 'chart')
+        .attr('class', 'large-6 medium-12 small-12 cell')
         .append("svg")
+        .attr("viewBox", "0 0 " + (width + margin.right + margin.left )+ " " + (height + margin.top + margin.bottom))
+        .attr("preserveAspectRatio", "xMidYMid meet")
         .attr("width", width + margin.right + margin.left)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
@@ -157,8 +159,7 @@ export async function generateMultiple() {
         .attr("class", "tick")
 //        .attr("transform", "translate( " + (width-20) + ", 0 )")
         .attr("color", '#666')
-        .call(d3.axisRight(infectedpopulation));
-    svg
+        .call(d3.axisRight(infectedpopulation))
         .append("text")
         .attr("class", "axis-title")
         .attr("transform", "rotate(-90)")
@@ -228,7 +229,7 @@ export async function generateMultiple() {
         .append("text")
         .attr("text-anchor", "start")
         .attr("y", -margin.top / 2)
-        .attr("x", (width - margin.left) / 2)
+        .attr("x", margin.left)
         .text(function (d) {
             return (d.key)
         })
@@ -265,18 +266,20 @@ export async function generateHeatMap() {
     const days = [...new Set(newlyInfected.map(item => item.day))];
 
     // set the dimensions and margins of the graph
-    let margin = {top: 0, right: 25, bottom: 50, left: 100},
+    let margin = {top: 0, right: 25, bottom: 50, left: 80},
         width = 500 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     let svg = d3.select("#heatmap")
         .append("svg")
+        .attr("viewBox", "0 0 " + (width + margin.right + margin.left )+ " " + (height + margin.top + margin.bottom))
+        .attr("preserveAspectRatio", "xMidYMid meet")
         .attr("width", width + margin.left * 2 + margin.right * 2)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform",
-            "translate(" + margin.left * 2 + "," + margin.top + ")");
+            "translate(" + margin.left + "," + margin.top + ")");
 
 
     // Build X scales and axis:
@@ -352,6 +355,7 @@ export async function generateHeatMap() {
         })
         .attr("dominant-baseline", "middle")
         .attr("text-anchor", "middle")
+        .attr("class", "square-text")
         .text(function (d) {
             return d.new;
         })
@@ -385,7 +389,7 @@ export async function generateHeatMap2() {
     const days = [...new Set(newlyInfected.map(item => item.day))];
 
     // set the dimensions and margins of the graph
-    let margin = {top: 0, right: 25, bottom: 50, left: 100},
+    let margin = {top: 0, right: 25, bottom: 50, left: 120},
         width = 500 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
@@ -394,9 +398,11 @@ export async function generateHeatMap2() {
         .append("svg")
         .attr("width", width + margin.left * 2 + margin.right * 2)
         .attr("height", height + margin.top + margin.bottom)
+        .attr("viewBox", "0 0 " + (width + margin.right + margin.left )+ " " + (height + margin.top + margin.bottom))
+        .attr("preserveAspectRatio", "xMidYMid meet")
         .append("g")
         .attr("transform",
-            "translate(" + margin.left * 2 + "," + margin.top + ")");
+            "translate(" + margin.left + "," + margin.top + ")");
 
 
     // Build X scales and axis:
@@ -471,6 +477,7 @@ export async function generateHeatMap2() {
             return y(d.state) + (y.bandwidth() / 2);
         })
         .attr("dominant-baseline", "middle")
+        .attr("class", "square-text")
         .attr("text-anchor", "middle")
         .text(function (d) {
             return d.new_rel;

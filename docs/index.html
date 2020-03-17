@@ -1,110 +1,57 @@
 <!doctype html>
-<html lang="de">
+<html class="no-js" lang="en">
 <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>COVID-19 infections in Germany per state</title>
+    <link rel="stylesheet" href="assets/css/app.css">
     <style>
-        svg {
-            font-family: Sans-Serif, Arial,serif;
-        }
-
-        .line {
-            stroke-width: 2;
-            fill: none;
-        }
-
-        .axis path {
-            stroke: black;
-        }
-
-        .text {
-            font-size: 12px;
-        }
-
-        .title-text {
-            font-size: 12px;
-        }
-
-        #multiple {
-            display: flex;
-            flex-flow: row wrap;
-            justify-content: center;
-            align-items: flex-end;
-        }
-
-        .chart {
-            min-width: 350px;
-            min-height: 300px;
-        }
-
-        html { font-size: 62.5%; }
-
-        body {
-            font-size: 1rem;
-            font-family: 'Open Sans', sans-serif;
-            font-weight: 400;
+        .square-text {
+            font-size: 0.65rem;
             fill: #8C8C8C;
-            text-align: center;
         }
-
-        .timeLabel, .dayLabel {
-            font-size: 1.6rem;
-            fill: #AAAAAA;
-            font-weight: 300;
-        }
-
-        text.axis-workweek, text.axis-worktime {
-            fill: #404040;
-            font-weight: 400;
-        }
-
-        .title {
-            font-size: 2.8rem;
-            fill: #4F4F4F;
-            font-weight: 300;
-        }
-
-        .subtitle {
-            font-size: 1.4rem;
-            fill: #AAAAAA;
-            font-weight: 300;
-        }
-
-        .credit {
-            font-size: 1.2rem;
-            fill: #AAAAAA;
-            font-weight: 400;
-        }
-
         .axis path, .axis tick, .axis line {
             fill: none;
             stroke: none;
         }
-
-        .legendTitle {
-            font-size: 1.6rem;
-            fill: #4F4F4F;
-            font-weight: 300;
-        }
-
-        .background {
-            fill: none;
-        }
-
     </style>
 </head>
 <body>
-<h1>COVID-19 infections in Germany per state</h1>
-<h2>Graphs showing infections and deaths per state</h2>
+<div class="grid-container full">
+    <div class="grid-x grid-padding-x">
+        <div class="large-12 cell">
+            <h2>COVID-19 infections in Germany per state</h2>
+        </div>
+        <div class="cell medium-2 small-12">
+            <ul class="vertical tabs" data-tabs id="example-tabs">
+                <li class="tabs-title is-active"><a href="#panel1v" aria-selected="true">Graphs</a></li>
+                <li class="tabs-title"><a href="#panel2v">Heatmaps</a></li>
+            </ul>
+        </div>
+        <div class="cell medium-10 small-12">
+            <div class="tabs-content" data-tabs-content="example-tabs">
+                <div class="tabs-panel is-active" id="panel1v">
+                    <h3>Graphs showing infections and deaths per state</h3>
+                    <div id="multiple" class="grid-x grid-padding-x"></div>
+                </div>
+                <div class="tabs-panel" id="panel2v">
+                    <h3>Heatmap showing new infections per state</h3>
+                    <div id="heatmap" class="heatmap"></div>
 
-<div id="multiple"></div>
-
-<h2>Heatmap showing new infections per state</h2>
-<div id="heatmap"></div>
-
-<h2>Heatmap showing new infections per 100000 inhabitants per state</h2>
-<div id="heatmap2"></div>
-
+                    <h3>Heatmap showing new infections per 100000 inhabitants per state</h3>
+                    <div id="heatmap2" class="heatmap"></div>
+                </div>
+            </div>
+        </div>
+        <div class="large-12 cell text-center">
+            <p>Source: <a href="https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html">Robert
+                Koch Institut</a> | <a href="https://covid-19.openmedical.de/">https://covid-19.openmedical.de/</a> | <a
+                    href="https://github.com/awillner/covid-19-stats-de">GitHub</a></p>
+        </div>
+    </div>
+</div>
+<script src="assets/js/app.js"></script>
 <script type="module" src="./main.js"></script>
-<p>Source: <a href="https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html">Robert Koch Institut</a> | <a href="https://covid-19.openmedical.de/">https://covid-19.openmedical.de/</a> | <a href="https://github.com/awillner/covid-19-stats-de">GitHub</a> </p>
 </body>
 </html>
