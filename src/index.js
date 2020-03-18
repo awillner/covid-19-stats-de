@@ -34,8 +34,7 @@ async function loadData() {
 
 export async function generateMultiple() {
     if (!data) {
-        const
-            data = await loadData();
+        data = await loadData();
     }
 
     /* Format Data */
@@ -83,13 +82,13 @@ export async function generateMultiple() {
         .append('div')
         .attr('class', 'large-6 medium-12 small-12 cell')
         .append("svg")
-        .attr("viewBox", "0 0 " + (width + margin.right + margin.left )+ " " + (height + margin.top + margin.bottom))
+        .attr("viewBox", "0 0 " + (width + margin.right + margin.left) + " " + (height + margin.top + margin.bottom))
         .attr("preserveAspectRatio", "xMidYMid meet")
         .attr("width", width + margin.right + margin.left)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform",
-            "translate(" + margin.left + "," + (margin.top + 10) + ")");
+            "translate(" + (margin.left/2) + "," + (margin.top + 10) + ")");
 
     //region x
     // Add X axis
@@ -157,13 +156,13 @@ export async function generateMultiple() {
         .range([height, 0]);
     svg.append("g")
         .attr("class", "tick")
-//        .attr("transform", "translate( " + (width-20) + ", 0 )")
+        //        .attr("transform", "translate( " + (width-20) + ", 0 )")
         .attr("color", '#666')
         .call(d3.axisRight(infectedpopulation))
         .append("text")
         .attr("class", "axis-title")
         .attr("transform", "rotate(-90)")
-        .attr("x", -margin.bottom/2)
+        .attr("x", -margin.bottom / 2)
         .attr("y", 35)
         .style("text-anchor", "end")
         .attr("fill", '#666')
@@ -191,12 +190,12 @@ export async function generateMultiple() {
     //region deaths
     // deaths (total)
     let deaths = d3.scaleLinear()
-        .domain([0, d3.max(all, d => d.infected/ 100) ])
+        .domain([0, d3.max(all, d => d.infected / 100)])
         .range([height, 0]);
     svg.append("g")
         .attr("class", "tick")
         .attr("color", '#aaa')
-        .attr("transform", "translate( " + (width -10 ) + ", 0 )")
+        .attr("transform", "translate( " + (width - 10) + ", 0 )")
         .call(d3.axisRight(deaths))
         .append("text")
         .attr("class", "axis-title")
@@ -229,7 +228,7 @@ export async function generateMultiple() {
         .append("text")
         .attr("text-anchor", "start")
         .attr("y", -margin.top / 2)
-        .attr("x", margin.left)
+        .attr("x", margin.left/2)
         .text(function (d) {
             return (d.key)
         })
@@ -238,7 +237,7 @@ export async function generateMultiple() {
         });
 }
 
-export async function generateHeatMap() {
+export async function generateHeatMaps() {
     if (!data) {
         data = await loadData();
     }
@@ -255,151 +254,34 @@ export async function generateHeatMap() {
             date = parseDay(parseDate(e.date));
             newlyInfected.push({
                 'state': d.state,
+                'state_short': d.state_short,
                 'day': date,
                 'new': e.infected_diff,
-                'new_rel': (e.infected_diff/d.population*populationFactor).toFixed(2)
+                'new_rel': (e.infected_diff / d.population * populationFactor).toFixed(2)
             })
         });
     });
 
-    const states = [...new Set(newlyInfected.map(item => item.state))].reverse();
+    const states = [...new Set(newlyInfected.map(item => item.state_short))].reverse();
     const days = [...new Set(newlyInfected.map(item => item.day))];
 
-    // set the dimensions and margins of the graph
-    let margin = {top: 0, right: 25, bottom: 50, left: 80},
-        width = 500 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom;
-
-    // append the svg object to the body of the page
-    let svg = d3.select("#heatmap")
-        .append("svg")
-        .attr("viewBox", "0 0 " + (width + margin.right + margin.left )+ " " + (height + margin.top + margin.bottom))
-        .attr("preserveAspectRatio", "xMidYMid meet")
-        .attr("width", width + margin.left * 2 + margin.right * 2)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
-
-
-    // Build X scales and axis:
-    let x = d3.scaleBand()
-        .range([0, width])
-        .domain(days)
-        .padding(0.05);
-
-    let xAxis = svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x).tickSize(0));
-
-    xAxis.selectAll("text")
-        .style("text-anchor", "end")
-        .attr("dx", "-.8em")
-        .attr("dy", ".15em")
-        .attr("transform", "rotate(-65)");
-    xAxis.selectAll(".domain")
-        .remove();
-
-    // Build Y scales and axis:
-    let y = d3.scaleBand()
-        .range([height, 0])
-        .domain(states)
-        .padding(0.05);
-
-    svg.append("g")
-        .call(d3.axisLeft(y).tickSize(0))
-        .select(".domain").remove();
-
-    let max = d3.max(newlyInfected, d => d.new);
-    // Build color scale
-    let myColor = d3.scaleSequential()
-        .interpolator(d3.interpolateOranges)
-        .domain([0, max]);
-
-    // add the squares
-    svg.selectAll()
-        .data(newlyInfected, function (d) {
-            return d.state + ':' + d.day;
-        })
-        .enter()
-        .append("g")
-        .append("rect")
-        .attr("x", function (d) {
-            return x(d.day);
-        })
-        .attr("y", function (d) {
-            return y(d.state);
-        })
-        .attr("rx", 2)
-        .attr("ry", 2)
-        .attr("width", x.bandwidth())
-        .attr("height", y.bandwidth())
-        .style("fill", function (d) {
-            return myColor(d.new)
-        })
-        .style("stroke-width", 4)
-        .style("stroke", "none")
-        .style("opacity", 0.8);
-
-    svg.selectAll()
-        .data(newlyInfected, function (d) {
-            return d.state + ':' + d.day;
-        })
-        .enter()
-        .append('text')
-        .attr("x", function (d) {
-            return x(d.day) + (x.bandwidth() / 2);
-        })
-        .attr("y", function (d) {
-            return y(d.state) + (y.bandwidth() / 2);
-        })
-        .attr("dominant-baseline", "middle")
-        .attr("text-anchor", "middle")
-        .attr("class", "square-text")
-        .text(function (d) {
-            return d.new;
-        })
+    heatmap(days, states, newlyInfected, 'new', '#heatmap' );
+    heatmap(days, states, newlyInfected, 'new_rel', '#heatmap2' );
 }
 
-export async function generateHeatMap2() {
-    if (!data) {
-        data = await loadData();
-    }
-
-    /* Format Data */
-    let parseDate = d3.timeParse('%d.%m.%Y');
-    let parseDay = d3.timeFormat('%d.%m.');
-    let newlyInfected = [];
-
-    let date;
-
-    data.forEach(function (d) {
-        d.data.forEach(function (e) {
-            date = parseDay(parseDate(e.date));
-            newlyInfected.push({
-                'state': d.state,
-                'day': date,
-                'new': e.infected_diff,
-                'new_rel': (e.infected_diff/d.population*100000).toFixed(2)
-            })
-        });
-    });
-
-    const states = [...new Set(newlyInfected.map(item => item.state))].reverse();
-    const days = [...new Set(newlyInfected.map(item => item.day))];
-
+function heatmap(xValues, yValues, data, key, selector) {
     // set the dimensions and margins of the graph
-    let margin = {top: 0, right: 25, bottom: 50, left: 120},
+    let margin = {top: 0, right: 25, bottom: 50, left: 10},
         width = 500 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
-    let svg = d3.select("#heatmap2")
+    let svg = d3.select(selector)
         .append("svg")
-        .attr("width", width + margin.left * 2 + margin.right * 2)
-        .attr("height", height + margin.top + margin.bottom)
         .attr("viewBox", "0 0 " + (width + margin.right + margin.left )+ " " + (height + margin.top + margin.bottom))
         .attr("preserveAspectRatio", "xMidYMid meet")
+        .attr("width", width + margin.left * 2 + margin.right * 2)
+        .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
@@ -408,7 +290,7 @@ export async function generateHeatMap2() {
     // Build X scales and axis:
     let x = d3.scaleBand()
         .range([0, width])
-        .domain(days)
+        .domain(xValues)
         .padding(0.05);
 
     let xAxis = svg.append("g")
@@ -426,14 +308,14 @@ export async function generateHeatMap2() {
     // Build Y scales and axis:
     let y = d3.scaleBand()
         .range([height, 0])
-        .domain(states)
+        .domain(yValues)
         .padding(0.05);
 
     svg.append("g")
         .call(d3.axisLeft(y).tickSize(0))
         .select(".domain").remove();
 
-    let max = d3.max(newlyInfected, d => d.new_rel);
+    let max = d3.max(data, d => d[key]);
     // Build color scale
     let myColor = d3.scaleSequential()
         .interpolator(d3.interpolateOranges)
@@ -441,8 +323,8 @@ export async function generateHeatMap2() {
 
     // add the squares
     svg.selectAll()
-        .data(newlyInfected, function (d) {
-            return d.state + ':' + d.day;
+        .data(data, function (d) {
+            return d.state_short + ':' + d.day;
         })
         .enter()
         .append("g")
@@ -451,22 +333,23 @@ export async function generateHeatMap2() {
             return x(d.day);
         })
         .attr("y", function (d) {
-            return y(d.state);
+            return y(d.state_short);
         })
         .attr("rx", 2)
         .attr("ry", 2)
         .attr("width", x.bandwidth())
         .attr("height", y.bandwidth())
         .style("fill", function (d) {
-            return myColor(d.new_rel)
+            return myColor(d[key])
         })
         .style("stroke-width", 4)
         .style("stroke", "none")
         .style("opacity", 0.8);
 
     svg.selectAll()
-        .data(newlyInfected, function (d) {
-            return d.state + ':' + d.day;
+        .data(data, function (d) {
+            console.log(d);
+            return d.state_short + ':' + d.day;
         })
         .enter()
         .append('text')
@@ -474,18 +357,16 @@ export async function generateHeatMap2() {
             return x(d.day) + (x.bandwidth() / 2);
         })
         .attr("y", function (d) {
-            return y(d.state) + (y.bandwidth() / 2);
+            return y(d.state_short) + (y.bandwidth() / 2);
         })
         .attr("dominant-baseline", "middle")
-        .attr("class", "square-text")
         .attr("text-anchor", "middle")
+        .attr("class", "square-text")
         .text(function (d) {
-            return d.new_rel;
-        })
+            return d[key];
+        });
 }
 
 generateMultiple();
 
-generateHeatMap();
-
-generateHeatMap2();
+generateHeatMaps();
