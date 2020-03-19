@@ -187,41 +187,41 @@ export async function generateMultiple() {
         });
     //endregion infections per inhabitants
 
-    //region deaths
-    // deaths (total)
-    let deaths = d3.scaleLinear()
-        .domain([0, d3.max(all, d => d.infected / 100)])
-        .range([height, 0]);
-    svg.append("g")
-        .attr("class", "tick")
-        .attr("color", '#aaa')
-        .attr("transform", "translate( " + (width - 10) + ", 0 )")
-        .call(d3.axisRight(deaths))
-        .append("text")
-        .attr("class", "axis-title")
-        .attr("transform", "rotate(-90)")
-        .attr("x", (-height + margin.bottom) / 2)
-        .attr("y", 35)
-        .style("text-anchor", "end")
-        .attr("fill", "#aaa")
-        .text("Deaths");
-    // Draw the line for deaths
-    svg
-        .append("path")
-        .attr("fill", "none")
-        .attr("stroke", '#aaa')
-        .attr("stroke-width", 1.9)
-        .attr("d", function (d) {
-            return d3.line()
-                .x(function (d) {
-                    return x(d.date);
-                })
-                .y(function (d) {
-                    return deaths(d.dead);
-                })
-                (d.values)
-        });
-    //endregion deaths
+    // //region deaths
+    // // deaths (total)
+    // let deaths = d3.scaleLinear()
+    //     .domain([0, d3.max(all, d => d.infected / 100)])
+    //     .range([height, 0]);
+    // svg.append("g")
+    //     .attr("class", "tick")
+    //     .attr("color", '#aaa')
+    //     .attr("transform", "translate( " + (width - 10) + ", 0 )")
+    //     .call(d3.axisRight(deaths))
+    //     .append("text")
+    //     .attr("class", "axis-title")
+    //     .attr("transform", "rotate(-90)")
+    //     .attr("x", (-height + margin.bottom) / 2)
+    //     .attr("y", 35)
+    //     .style("text-anchor", "end")
+    //     .attr("fill", "#aaa")
+    //     .text("Deaths");
+    // // Draw the line for deaths
+    // svg
+    //     .append("path")
+    //     .attr("fill", "none")
+    //     .attr("stroke", '#aaa')
+    //     .attr("stroke-width", 1.9)
+    //     .attr("d", function (d) {
+    //         return d3.line()
+    //             .x(function (d) {
+    //                 return x(d.date);
+    //             })
+    //             .y(function (d) {
+    //                 return deaths(d.dead);
+    //             })
+    //             (d.values)
+    //     });
+    // //endregion deaths
 
     // Add titles
     svg
