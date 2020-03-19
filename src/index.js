@@ -318,7 +318,7 @@ function heatmap(xValues, yValues, data, key, selector) {
     let max = d3.max(data, d => d[key]);
     // Build color scale
     let myColor = d3.scaleSequential()
-        .interpolator(d3.interpolateOranges)
+        .interpolator(d3.interpolatePuBu)
         .domain([0, max]);
 
     // add the squares
